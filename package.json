@@ -19,6 +19,10 @@
   },
   "homepage": "https://github.com/gonghaima/Hackernews-graphql-server#readme",
   "dependencies": {
+    "@prisma/client": "^2.12.1",
     "apollo-server": "^2.19.1"
+  },
+  "devDependencies": {
+    "@prisma/cli": "^2.12.1"
   }
 }
