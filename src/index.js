@@ -2,10 +2,13 @@ const { ApolloServer } = require('apollo-server');
 const { PrismaClient } = require('@prisma/client')
 const fs = require('fs');
 const path = require('path');
+const { PubSub } = require('apollo-server');
+const Subscription = require('./resolvers/Subscription');
 
 // 1
 
 
+const pubsub = new PubSub();
 
 const resolvers = {
     Query: {
@@ -23,12 +26,13 @@ const resolvers = {
                     url: args.url,
                     description: args.description,
                 },
-            })
-            return newLink
+            });
+            context.pubsub.publish("NEW_LINK", newLink);
+            return newLink;
         },
-    }
+    },
+    Subscription
 }
-
 const prisma = new PrismaClient();
 
 const server = new ApolloServer({
@@ -37,8 +41,16 @@ const server = new ApolloServer({
         'utf8'
     ),
     resolvers,
-    context: {
-        prisma,
+    context: ({ req }) => {
+        return {
+            ...req,
+            prisma,
+            pubsub,
+            userId:
+                req && req.headers.authorization
+                    ? getUserId(req)
+                    : null
+        };
     }
 })
 
