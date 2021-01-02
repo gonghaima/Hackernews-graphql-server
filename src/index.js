@@ -30,8 +30,59 @@ const resolvers = {
             context.pubsub.publish("NEW_LINK", newLink);
             return newLink;
         },
+        vote: async (parent, args, context, info) => {
+            const { userId } = context;
+            const vote = await context.prisma.vote.findUnique({
+                where: {
+                    linkId_userId: {
+                        linkId: Number(args.linkId),
+                        userId: userId || 1
+                    }
+                }
+            });
+
+            if (Boolean(vote)) {
+                throw new Error(
+                    `Already voted for link: ${args.linkId}`
+                );
+            }
+
+            const newVote = context.prisma.vote.create({
+                data: {
+                    user: { connect: { id: userId || 1 } },
+                    link: { connect: { id: Number(args.linkId) } }
+                }
+            });
+            context.pubsub.publish('NEW_VOTE', newVote);
+
+            return newVote;
+        }
     },
-    Subscription
+    Subscription,
+    Link: {
+        votes: (parent, args, context) => {
+            return context.prisma.link
+                .findUnique({ where: { id: parent.id } })
+                .votes();
+        },
+        postedBy: (parent, args, context) => {
+            return context.prisma.link
+                .findUnique({ where: { id: parent.id } })
+                .postedBy();
+        }
+    },
+    Vote: {
+        link: (parent, args, context) => {
+            return context.prisma.vote
+                .findUnique({ where: { id: parent.id } })
+                .link();
+        },
+        user: (parent, args, context) => {
+            return context.prisma.vote
+                .findUnique({ where: { id: parent.id } })
+                .user();
+        }
+    }
 }
 const prisma = new PrismaClient();
 

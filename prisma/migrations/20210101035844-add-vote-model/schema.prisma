@@ -1,7 +1,7 @@
 // 1
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url = "***"
 }
 
 // 2
