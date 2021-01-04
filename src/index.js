@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client')
 const fs = require('fs');
 const path = require('path');
 const { PubSub } = require('apollo-server');
+const Query = require('./resolvers/Query');
 const Subscription = require('./resolvers/Subscription');
 
 // 1
@@ -11,13 +12,7 @@ const Subscription = require('./resolvers/Subscription');
 const pubsub = new PubSub();
 
 const resolvers = {
-    Query: {
-        info: () => `This is the API of a Hackernews Clone`,
-        // 2
-        feed: async (parent, args, context) => {
-            return context.prisma.link.findMany()
-        },
-    },
+    Query,
     Mutation: {
         // 2
         post: (parent, args, context, info) => {
