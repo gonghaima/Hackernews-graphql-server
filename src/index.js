@@ -3,6 +3,8 @@ const { PrismaClient } = require('@prisma/client')
 const fs = require('fs');
 const path = require('path');
 const { PubSub } = require('apollo-server');
+const Query = require('./resolvers/Query');
+const Mutation = require('./resolvers/Mutation');
 const Subscription = require('./resolvers/Subscription');
 
 // 1
@@ -11,53 +13,8 @@ const Subscription = require('./resolvers/Subscription');
 const pubsub = new PubSub();
 
 const resolvers = {
-    Query: {
-        info: () => `This is the API of a Hackernews Clone`,
-        // 2
-        feed: async (parent, args, context) => {
-            return context.prisma.link.findMany()
-        },
-    },
-    Mutation: {
-        // 2
-        post: (parent, args, context, info) => {
-            const newLink = context.prisma.link.create({
-                data: {
-                    url: args.url,
-                    description: args.description,
-                },
-            });
-            context.pubsub.publish("NEW_LINK", newLink);
-            return newLink;
-        },
-        vote: async (parent, args, context, info) => {
-            const { userId } = context;
-            const vote = await context.prisma.vote.findUnique({
-                where: {
-                    linkId_userId: {
-                        linkId: Number(args.linkId),
-                        userId: userId || 1
-                    }
-                }
-            });
-
-            if (Boolean(vote)) {
-                throw new Error(
-                    `Already voted for link: ${args.linkId}`
-                );
-            }
-
-            const newVote = context.prisma.vote.create({
-                data: {
-                    user: { connect: { id: userId || 1 } },
-                    link: { connect: { id: Number(args.linkId) } }
-                }
-            });
-            context.pubsub.publish('NEW_VOTE', newVote);
-
-            return newVote;
-        }
-    },
+    Query,
+    Mutation,
     Subscription,
     Link: {
         votes: (parent, args, context) => {
