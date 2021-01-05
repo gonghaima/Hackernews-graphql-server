@@ -6,6 +6,8 @@ const { PubSub } = require('apollo-server');
 const Query = require('./resolvers/Query');
 const Mutation = require('./resolvers/Mutation');
 const Subscription = require('./resolvers/Subscription');
+const Link = require('./resolvers/Link');
+const Vote = require('./resolvers/Vote');
 
 // 1
 
@@ -16,30 +18,8 @@ const resolvers = {
     Query,
     Mutation,
     Subscription,
-    Link: {
-        votes: (parent, args, context) => {
-            return context.prisma.link
-                .findUnique({ where: { id: parent.id } })
-                .votes();
-        },
-        postedBy: (parent, args, context) => {
-            return context.prisma.link
-                .findUnique({ where: { id: parent.id } })
-                .postedBy();
-        }
-    },
-    Vote: {
-        link: (parent, args, context) => {
-            return context.prisma.vote
-                .findUnique({ where: { id: parent.id } })
-                .link();
-        },
-        user: (parent, args, context) => {
-            return context.prisma.vote
-                .findUnique({ where: { id: parent.id } })
-                .user();
-        }
-    }
+    Link,
+    Vote
 }
 const prisma = new PrismaClient();
 
