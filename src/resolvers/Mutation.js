@@ -1,4 +1,8 @@
 
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { APP_SECRET } = require('../utils');
+
 const post = (parent, args, context, info) => {
     const newLink = context.prisma.link.create({
         data: {
@@ -9,6 +13,7 @@ const post = (parent, args, context, info) => {
     context.pubsub.publish("NEW_LINK", newLink);
     return newLink;
 };
+
 const vote = async (parent, args, context, info) => {
     const { userId } = context;
     const vote = await context.prisma.vote.findUnique({
@@ -37,8 +42,22 @@ const vote = async (parent, args, context, info) => {
     return newVote;
 };
 
+const signup = async (parent, args, context, info) => {
+    const password = await bcrypt.hash(args.password, 10);
+    const user = await context.prisma.user.create({
+        data: { ...args, password }
+    });
+
+    const token = jwt.sign({ userId: user.id }, APP_SECRET);
+
+    return {
+        token,
+        user
+    };
+}
 
 module.exports = {
     post,
-    vote
+    vote,
+    signup
 };
