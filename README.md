@@ -77,3 +77,16 @@ mutation{
   }
 }
 ```
+
+```shell
+mutation{
+  signup(email: "foo@gmail.com", password: "123456", name: "foo Homes"){
+    token
+    user{
+      name
+      email
+      id
+    }
+  }
+}
+```
