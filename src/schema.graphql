@@ -11,6 +11,10 @@ type Mutation {
     password: String!
     name: String!
   ): AuthPayload
+  login(
+    email: String!
+    password: String!
+  ): AuthPayload
 }
 
 type Vote {

@@ -90,3 +90,16 @@ mutation{
   }
 }
 ```
+
+```shell
+mutation{
+  login(email: "foo@gmail.com", password: "123456"){
+    token
+    user{
+      name
+      email
+      id
+    }
+  }
+}
+```
