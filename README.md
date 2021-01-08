@@ -28,6 +28,26 @@ subscription {
 }
 ```
 
+```shell
+subscription{
+  newLink{
+    id
+    description
+    url
+    postedBy{
+      name
+      email
+    }
+    votes{
+      link{
+        url
+        description
+      }
+    }
+  }
+}
+```
+
 ## query
 
 ```shell
