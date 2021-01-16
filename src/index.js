@@ -11,7 +11,6 @@ const Vote = require('./resolvers/Vote');
 
 // 1
 
-
 const pubsub = new PubSub();
 
 const resolvers = {
@@ -23,21 +22,39 @@ const resolvers = {
 }
 const prisma = new PrismaClient();
 
+const mockInvalidPromise = () => Promise.resolve(false);
+
 const server = new ApolloServer({
     typeDefs: fs.readFileSync(
         path.join(__dirname, 'schema.graphql'),
         'utf8'
     ),
     resolvers,
-    context: ({ req }) => {
+    context: async ct => {
+        // get the user token from the headers
+        const connection = ct.connection;
+        const req = ct.req;
+        const token = req?.headers?.authorization || '';
+
+        console.log(`<<<=============================================================`);
+        console.log('token:');
+        console.log(token);
+        console.log(!token);
+
+        console.log('headers auth:');
+        console.log(req?.headers?.authorization);
+        console.log('connection auth:');
+        console.log(connection?.context?.authorization);
+        // if (!token) throw new AuthenticationError('you must be logged in');
+        // const invalidRequet = !token ? true : false;
+        const invalidRequet = await mockInvalidPromise();
+        console.log(`invalidRequet: ${invalidRequet}`);
+        console.log(`=============================================================>>>`);
         return {
             ...req,
             prisma,
             pubsub,
-            userId:
-                req && req.headers.authorization
-                    ? getUserId(req)
-                    : null
+            invalidRequet
         };
     }
 })
