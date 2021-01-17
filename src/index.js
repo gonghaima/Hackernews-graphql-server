@@ -3,6 +3,8 @@ const { PrismaClient } = require('@prisma/client')
 const fs = require('fs');
 const path = require('path');
 const { PubSub } = require('apollo-server');
+const jwt = require('jsonwebtoken');
+const { APP_SECRET } = require('./utils');
 const Query = require('./resolvers/Query');
 const Mutation = require('./resolvers/Mutation');
 const Subscription = require('./resolvers/Subscription');
@@ -22,7 +24,7 @@ const resolvers = {
 }
 const prisma = new PrismaClient();
 
-const mockInvalidPromise = () => Promise.resolve(false);
+// const mockInvalidPromise = () => Promise.resolve(false);
 
 const server = new ApolloServer({
     typeDefs: fs.readFileSync(
@@ -34,27 +36,15 @@ const server = new ApolloServer({
         // get the user token from the headers
         const connection = ct.connection;
         const req = ct.req;
-        const token = req?.headers?.authorization || '';
 
-        console.log(`<<<=============================================================`);
-        console.log('token:');
-        console.log(token);
-        console.log(!token);
+        // token either comes from request header, or from connection via websockit
+        const token = req?.headers?.authorization || connection?.context?.authorization || '';
 
-        console.log('headers auth:');
-        console.log(req?.headers?.authorization);
-        console.log('connection auth:');
-        console.log(connection?.context?.authorization);
-        // if (!token) throw new AuthenticationError('you must be logged in');
-        // const invalidRequet = !token ? true : false;
-        const invalidRequet = await mockInvalidPromise();
-        console.log(`invalidRequet: ${invalidRequet}`);
-        console.log(`=============================================================>>>`);
         return {
             ...req,
             prisma,
             pubsub,
-            invalidRequet
+            accessToken: token
         };
     }
 })
