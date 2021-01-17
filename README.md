@@ -80,7 +80,7 @@ mutation{
 
 ```shell
 mutation{
-  signup(email: "foo@gmail.com", password: "123456", name: "foo Homes"){
+  signup(email: "foo@gmail.com", password: "asdf", name: "foo Homes"){
     token
     user{
       name
